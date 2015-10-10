@@ -4,6 +4,13 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
 
+$script = <<SCRIPT
+sudo apt-get install -y software-properties-common python-software-properties
+sudo add-apt-repository -y ppa:brightbox/ruby-ng
+sudo apt-get -y update
+sudo apt-get -y install ruby2.1
+SCRIPT
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   if Vagrant.has_plugin?("vagrant-cachier")
     config.cache.scope = :box
@@ -42,6 +49,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           }
         }
       }
+
+      config.vm.provision :shell, :inline => $script
+
       chef.run_list = %w[
         recipe[apt]
         recipe[phpenv::default]
@@ -50,6 +60,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         recipe[capistrano]
       ]
     end
+
 
   end
 
@@ -77,6 +88,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           }
         }
       }
+      config.vm.provision :shell, :inline => $script
+
       chef.run_list = %w[
         recipe[apt]
         recipe[phpenv::default]
@@ -87,7 +100,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         recipe[jenkins::plugin]
       ]
     end
-
   end
 
   config.vm.define :deploy do |deploy|
